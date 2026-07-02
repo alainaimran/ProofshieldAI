@@ -2,36 +2,31 @@ import { GoogleGenAI } from "@google/genai";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-export async function analyzeIncident(incidentText) {
+export const analyzeIncident = async (incidentText) => {
   if (!apiKey) {
-    throw new Error("Missing VITE_GEMINI_API_KEY in environment variables.");
+    throw new Error("Missing Gemini API Key. Please add VITE_GEMINI_API_KEY to your .env file.");
   }
-  
+
   if (!apiKey.startsWith("AIza") && !apiKey.startsWith("AQ")) {
-    throw new Error("Invalid API key format. Gemini API keys typically start with 'AIza' or 'AQ'. Please check your .env file.");
+    throw new Error("Invalid API key format. Gemini API keys typically start with 'AIza' or 'AQ'.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  
-  const prompt = `
-You are ProofShield AI, an expert crisis-response agent specializing in cyber harassment and AI-generated image abuse. 
-Analyze the following user's situation. 
-You must return ONLY a valid JSON object with the exact structure below, and no markdown formatting, code blocks, or extra text.
 
-JSON Structure:
-{
-  "harm_type": "string (e.g., Deepfake, Sextortion, Cyberstalking)",
-  "risk_level": "string (Low, Medium, High, Critical)",
-  "red_flags": ["string array of 2-4 identified threats"],
-  "agent_trace": ["string array of 3-4 steps you took to analyze this"],
-  "immediate_steps": ["string array of 3 urgent actions"],
-  "evidence_checklist": ["string array of items to screenshot/save"],
-  "report_summary": "string (A formal 2-sentence summary for authorities)"
-}
-
-User's Situation:
+  const prompt = `You are an expert crisis response AI for cyber harassment, deepfakes, and extortion.
+Analyze this incident:
 "${incidentText}"
-`;
+
+Return ONLY a JSON object (no markdown) with this exact structure:
+{
+  "harm_type": "string (e.g. Deepfake, Sextortion, Impersonation)",
+  "risk_level": "string (Low, Medium, High, Critical)",
+  "red_flags": ["string", "string"],
+  "agent_trace": ["string", "string"],
+  "immediate_steps": ["string", "string"],
+  "evidence_checklist": ["string", "string"],
+  "report_summary": "string (A formal 2-3 sentence summary)"
+}`;
 
   try {
     const response = await ai.models.generateContent({
@@ -39,17 +34,57 @@ User's Situation:
       contents: prompt,
       config: {
         responseMimeType: "application/json",
-        temperature: 0.2, // Low temp for more deterministic, structured output
+        temperature: 0.2
       }
     });
+
+    const text = response.text;
+    const jsonStart = text.indexOf('{');
+    const jsonEnd = text.lastIndexOf('}') + 1;
+    const jsonString = text.substring(jsonStart, jsonEnd);
     
-    // Parse the JSON safely
-    const parsedData = JSON.parse(response.text);
-    return parsedData;
+    return JSON.parse(jsonString);
   } catch (error) {
     console.error("Gemini API Error:", error);
-    // Extract and throw the actual API error message if available
-    const errorMessage = error instanceof Error ? error.message : "Unknown API error";
-    throw new Error(`Failed to analyze incident with AI: ${errorMessage}`);
+    throw new Error("Failed to analyze incident with Gemini. " + error.message);
   }
-}
+};
+
+export const analyzeScam = async (messageText) => {
+  if (!apiKey) {
+    throw new Error("Missing Gemini API Key.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `Analyze this potentially threatening or scam message:
+"${messageText}"
+
+Return ONLY a JSON object with this exact structure:
+{
+  "scam_confidence": "number (0-100)",
+  "threat_type": "string",
+  "psychological_tactics": ["string", "string"],
+  "risk_level": "string (Low, Medium, High, Critical)",
+  "recommended_response": "string"
+}`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.1
+      }
+    });
+
+    const text = response.text;
+    const jsonStart = text.indexOf('{');
+    const jsonEnd = text.lastIndexOf('}') + 1;
+    return JSON.parse(text.substring(jsonStart, jsonEnd));
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    throw new Error("Failed to analyze scam with Gemini.");
+  }
+};

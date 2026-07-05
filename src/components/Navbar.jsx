@@ -4,7 +4,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { 
   Shield, LogOut, Zap, Archive, BookOpen, FileText, Home, 
-  AlertTriangle, Users, Globe, ShieldAlert, Menu, X, ChevronDown, ShieldCheck
+  AlertTriangle, Users, Globe, ShieldAlert, Menu, X, ChevronDown, ShieldCheck, Image as ImageIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,13 +32,14 @@ export default function Navbar({ user }) {
     { path: '/', label: 'Home', icon: Home },
     { path: '/dashboard', label: 'Dashboard', icon: ActivityIcon },
     { path: '/emergency', label: 'Emergency', icon: AlertTriangle },
-    { path: '/vault', label: 'Case Vault', icon: Archive },
+    { path: '/image-scanner', label: 'Image Scanner', icon: ImageIcon },
   ];
 
   const secondaryLinks = [
     { path: '/community', label: 'Community', icon: Users },
     { path: '/intelligence', label: 'Intelligence', icon: Globe },
     { path: '/scam-detector', label: 'Scam Detector', icon: ShieldAlert },
+    { path: '/vault', label: 'Case Vault', icon: Archive },
     { path: '/resources', label: 'Resources', icon: BookOpen },
     { path: '/safety-kit', label: 'Safety Kit', icon: ShieldCheck },
     { path: '/report', label: 'Report Preview', icon: FileText },
@@ -98,7 +99,7 @@ export default function Navbar({ user }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-full right-0 mt-3 w-56 glass-panel bg-black/80 border border-white/10 shadow-2xl p-2 rounded-xl flex flex-col gap-1 z-50 backdrop-blur-2xl"
+                className="absolute top-full right-0 mt-3 w-56 !bg-[#09090b] !bg-opacity-100 border border-white/20 shadow-[0_10px_40px_rgba(0,0,0,0.9)] p-2 rounded-xl flex flex-col gap-1 z-50 backdrop-blur-3xl"
               >
                 {secondaryLinks.map((link) => {
                   const Icon = link.icon;

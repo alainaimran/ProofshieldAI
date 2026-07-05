@@ -14,6 +14,7 @@ import Community from './pages/Community';
 import Intelligence from './pages/Intelligence';
 import Resources from './pages/Resources';
 import ScamDetector from './pages/ScamDetector';
+import ImageScanner from './pages/ImageScanner';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -52,6 +53,7 @@ function App() {
         <Route path="/intelligence" element={user ? <Intelligence user={user} /> : <Navigate to="/" />} />
         <Route path="/resources" element={user ? <Resources user={user} /> : <Navigate to="/" />} />
         <Route path="/scam-detector" element={user ? <ScamDetector user={user} /> : <Navigate to="/" />} />
+        <Route path="/image-scanner" element={user ? <ImageScanner user={user} /> : <Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );

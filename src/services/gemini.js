@@ -88,3 +88,54 @@ Return ONLY a JSON object with this exact structure:
     throw new Error("Failed to analyze scam with Gemini.");
   }
 };
+
+export const analyzeImage = async (base64Data, mimeType) => {
+  if (!apiKey) {
+    throw new Error("Missing Gemini API Key.");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `You are ProofShield AI, a digital safety assistant.
+Analyze this image for possible AI manipulation, deepfake signs, editing, impersonation, or harassment risk.
+
+Important:
+Do NOT claim certainty. Give a cautious risk assessment only.
+
+Return ONLY a JSON object with this exact structure:
+{
+  "riskLevel": "Low | Medium | High",
+  "confidence": "Low | Medium | High",
+  "suspiciousSigns": ["string", "string"],
+  "explanation": "string",
+  "victimSafetyAdvice": "string",
+  "disclaimer": "This is not a forensic result. It is an AI-based risk scan and should be verified with trusted sources or authorities."
+}`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        prompt,
+        {
+          inlineData: {
+            data: base64Data,
+            mimeType: mimeType
+          }
+        }
+      ],
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.2
+      }
+    });
+
+    const text = response.text;
+    const jsonStart = text.indexOf('{');
+    const jsonEnd = text.lastIndexOf('}') + 1;
+    return JSON.parse(text.substring(jsonStart, jsonEnd));
+  } catch (error) {
+    console.error("Gemini Image Analysis Error:", error);
+    throw new Error("Failed to analyze image with Gemini. " + error.message);
+  }
+};

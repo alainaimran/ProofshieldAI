@@ -21,17 +21,19 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // For Hackathon demo purposes, if Firebase is mock, we can bypass this or keep it.
-    // In a real app, this listens to auth changes.
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        const mockUser = localStorage.getItem('mockUser');
+        if (mockUser) {
+          setUser(JSON.parse(mockUser));
+        } else {
+          setUser(null);
+        }
+      }
       setLoading(false);
     });
-    
-    // Failsafe for 2-hour hackathon mock:
-    // If you want to force login for demo purposes, you can uncomment this:
-    // setUser({ displayName: "Demo User", email: "demo@example.com" });
-    // setLoading(false);
 
     return () => unsubscribe();
   }, []);

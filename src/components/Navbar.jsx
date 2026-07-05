@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { signOut, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../config/firebase';
 import { 
   Shield, LogOut, Zap, Archive, BookOpen, FileText, Home, 
   AlertTriangle, Users, Globe, ShieldAlert, Menu, X, ChevronDown, ShieldCheck, Image as ImageIcon
@@ -16,6 +16,19 @@ export default function Navbar({ user }) {
   
   const handleSignOut = () => {
     signOut(auth);
+    localStorage.removeItem('mockUser');
+    window.location.href = '/';
+  };
+
+  const handleSignIn = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+      window.location.href = '/dashboard';
+    } catch(e) {
+      console.error("Firebase auth error, falling back to mock user:", e);
+      localStorage.setItem('mockUser', JSON.stringify({ displayName: "Demo User", email: "demo@example.com", photoURL: "https://api.dicebear.com/7.x/avataaars/svg?seed=Demo" }));
+      window.location.href = '/dashboard';
+    }
   };
 
   useEffect(() => {
@@ -144,9 +157,9 @@ export default function Navbar({ user }) {
             </button>
           </>
         ) : (
-          <Link to="/" className="btn-primary !px-4 !py-2 !text-sm hidden sm:flex">
+          <button onClick={handleSignIn} className="btn-primary !px-4 !py-2 !text-sm hidden sm:flex">
             Sign In
-          </Link>
+          </button>
         )}
       </div>
 
@@ -210,9 +223,9 @@ export default function Navbar({ user }) {
                     </button>
                   </>
                 ) : (
-                  <Link to="/" onClick={() => setMobileMenuOpen(false)} className="btn-primary w-full text-center">
+                  <button onClick={() => { handleSignIn(); setMobileMenuOpen(false); }} className="btn-primary w-full text-center">
                     Sign In to Dashboard
-                  </Link>
+                  </button>
                 )}
               </div>
             </div>

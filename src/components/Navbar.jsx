@@ -129,17 +129,25 @@ export default function Navbar({ user }) {
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
-        <div className="flex items-center gap-3 hidden md:flex border-l border-white/10 pl-4">
-          {user?.photoURL && (
-            <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-primary/30 shadow-[0_0_10px_rgba(139,92,246,0.3)] object-cover" />
-          )}
-          <span className="text-sm font-bold text-gray-300">
-            {user?.displayName?.split(" ")[0] || "Demo"}
-          </span>
-        </div>
-        <button onClick={handleSignOut} className="btn-secondary !p-2 !rounded-xl hidden sm:flex border-red-500/20 hover:border-red-500 hover:bg-red-500/10 hover:text-red-400" title="Sign Out">
-          <LogOut className="w-5 h-5" />
-        </button>
+        {user ? (
+          <>
+            <div className="flex items-center gap-3 hidden md:flex border-l border-white/10 pl-4">
+              {user.photoURL && (
+                <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-primary/30 shadow-[0_0_10px_rgba(139,92,246,0.3)] object-cover" />
+              )}
+              <span className="text-sm font-bold text-gray-300">
+                {user.displayName?.split(" ")[0] || "User"}
+              </span>
+            </div>
+            <button onClick={handleSignOut} className="btn-secondary !p-2 !rounded-xl hidden sm:flex border-red-500/20 hover:border-red-500 hover:bg-red-500/10 hover:text-red-400" title="Sign Out">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </>
+        ) : (
+          <Link to="/" className="btn-primary !px-4 !py-2 !text-sm hidden sm:flex">
+            Sign In
+          </Link>
+        )}
       </div>
 
       {/* Mobile Full Menu */}
@@ -187,17 +195,25 @@ export default function Navbar({ user }) {
               })}
 
               <div className="mt-4 pt-4 border-t border-white/10 px-2 flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  {user?.photoURL && (
-                    <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-primary/30 object-cover" />
-                  )}
-                  <span className="text-sm font-bold text-gray-300">
-                    {user?.displayName || user?.email || "Demo User"}
-                  </span>
-                </div>
-                <button onClick={handleSignOut} className="btn-secondary !p-2 !rounded-xl text-red-400 border-red-500/30">
-                  <LogOut className="w-5 h-5" />
-                </button>
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      {user.photoURL && (
+                        <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-primary/30 object-cover" />
+                      )}
+                      <span className="text-sm font-bold text-gray-300">
+                        {user.displayName || user.email || "User"}
+                      </span>
+                    </div>
+                    <button onClick={handleSignOut} className="btn-secondary !p-2 !rounded-xl text-red-400 border-red-500/30">
+                      <LogOut className="w-5 h-5" />
+                    </button>
+                  </>
+                ) : (
+                  <Link to="/" onClick={() => setMobileMenuOpen(false)} className="btn-primary w-full text-center">
+                    Sign In to Dashboard
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>
